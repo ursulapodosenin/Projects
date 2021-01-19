@@ -1,1 +1,201 @@
 # Projects
+
+print ("This short game was inspired by usuke Kishi's book, The Crimson Labyrinth published in 2006. In the novel, the individuals on the outskirts of society are selected to participate in a cul-de-sac, forced to outsmart one another to stay alive and win the prize money at the end. This game will take you through some of the decisions the characters in the book encountered. Choose wisely as reaching a dead end means you will have to start from the very beginning again! ")
+name= input("What is your name? ")
+age=int(input ("What is your age? "))
+print ("Hello", name,"you are", age, "years old.")
+if age >= 18:
+  print ("You are old enough to play!")
+  
+  wants_to_play = input ("Do you want to play? ").lower()
+  if wants_to_play == "yes":
+    print ("Hooray, let's play! ")
+
+    nsew = input("Welcome to the Mars Labyrinth! You have awoken in a labyrinth in the hot summer of Australia, stranded with nothing but a game device to give you directions on where to go. A word of warning, there are others stranded here with you, playing in this zero sum game. Remeber to take risks when needed, but also use your intuition to guide you. You will be given a game device which will ask questions as you make your way through the labyrinth in order to escape and get the prize! You will be given some information and asked to make your way forward accordingly. At this first checkpoint you have two options. You may choose to go north or south. Travel north if you wish to find information or south if you seek survival items. What will it be (north/south)? ")
+    if nsew == "north":
+      print ("As you've noticed, the walls of canyons surrounding you are extremely brittle, therefore climbing them is illegal and will be punished with severe penalties. Making fires in close proximity to one another or the construction of any SOS markers is also punishable.")
+      north = input ("Do you wish to travel to the next checkpoint or stay put (travel/stay put)?  ")
+      if north == "travel":
+          print ("Welcome to checkpoint two! It was wise of you to choose me over the  the southern option and soon you will find out why. At this checkpoint you will be given survival information. Your priorities to stay alive are water, shelter and food. There is plenty of edible plant and animal life, but not without hazard, here in the bungle bungle so read carefully. The edible plants are the Bansia and Grevillea flowers, Grass tree and Bracken fern. At the root of the Bracken fern you will find a real treat, Ghost Moth Larvae. Be warned however, the Bracken fern is also home to poisonous caterpillars which are deadly when ingested! Among other edible animals there are lizards, snails and, wallabies and snakes. Non-insect animals are difficult to catch and must be trapped to be eaten. Make sure to cut off the snakes head to avoid ingesting the deadly poison in their fangs! To reach the next checkpoint, travel 4000m North then 450m South. ")
+          Cthree= input ("Do you return to the second check point to see what the others have collected and obtain your share or do you proceed to checkpoint 4? (proceed/return)? ")
+          if Cthree == "return":
+           print("You've returned to the second checkpoint and find the others there. Everyone lays out there items to share, but something doesn't seem right. On the ground in front of you there are 20 meal bars, 2 canteens of water, 1 knife, 1 life tool, 1 sharpened rod, 1 wire saw, 1 line of fishing reel, 1 police baton, 1 can of bug spray and 1 snake bike kit.")
+           Items= input ("What items do you take? ")
+           print ("You look overhead as a raindrop falls on your nose, traveling in a downpour would mean getting soaked and possibly damaging your game device. On the other hand, who knows how long this game will last and when you'll get hungry again. Plus, the others are looking pretty restless right now.")
+           ln_ll= input ("Do you leave immediately or stay until the rain clears? (leave now/ leave later) ")
+           if ln_ll == "leave now":
+             print ("On your way to the third checkpoint you spot the Bracken fern mentioned in the game book. After eating the leaves of the fern you see something wiggling at the root, caterpillars! ")
+             cat= input ("Do you eat the caterpillars or proceed onwards? (eat caterpillars/ proceed onwards)")
+             if cat == "proceed onwards":
+              print ("Welcome to the fourth checkpoint, here you will learn about the different snakes that occupy the bungle bungle. There are twenty of them, and the three most dangerous are the King Brown, the Western Brown and the Northern Death Adder. All three are ranked the most deadly snake species in not only Australia, but in the whole world, as one bite of their venom is enough to shut down your entire nervous system. Scary, right? Not to worry though, you can avoid these bad boys by watching out for the letter, V, written on the canyon walls, or any valley that opens into the shape of the letter, V. Collect the fly nets from under the rock and proceed to the fifth checkpoint.")
+              print ("Welcome to the fifth and final checkpoint. Congratulations on making it to part 2 of the game. From here on out you will be free to roam the Mars Labyrinth any which way you choose. Remember, the last one to survive wins the prize at the end, but I wouldn't go about hiding in the thicket if I were you. You see, the reason you've made it this far is not just because of your instincts telling you to go north. The other players, although seemingly making a more practical choice in this situation, haven't understood the true nature of the game, thereby sacrificing long-term survival for short-term survival. All the better for you though, right? As you proceed through the Labyrinth, be careful, the group that traveled south may not be so kind upon running into you, after all they are famished and without knowledge of how to harvest food in the bungle bungle. They are the most dangerous when hungry. The FS biscuits and beer they were given was dosed with some thyroid stimulating hormones causing them to turn to other sources of food when their beer and biscuits ran out. Make sure to stay away from all three- or only two of them- as you travel. Best of luck! ")
+              proceed= input ("Do you wish to continue traveling north, move along south, east or west? (north/south/east/west)")
+              if proceed == "north":
+                print ("As you continue along north, you get the strange sensation that someone is watching you, but how can that be? You're the only one who had directions to the fourth checkpoint and the only one who traveled north from there.")
+                print ("Unless....")
+                print ("No")
+                print ("It can't be!")
+                print ("Shocked by the realization that the realization you've uncovered, you stumble on a rock and trip. The game device falls out of your hands and breaks. What are you going to do now? You realize the other players were too given instructions to roam freely about the Labyrinth.") 
+                print ("Thud")
+                print ("Thud")
+                print ("Thud") 
+                print ("The footsteps are getting louder and closer, the southern group must be approaching. But your game device is broken, all your information on traps and poisonous foods is gone. All there is left to do is run.") 
+                print ("Up ahead, you see a gap in the canyon wall!")
+                gn= input ("Do you run through the gap to escape or continue north? (gap/north)")
+                if gn == "gap":
+                  print ("The group is cathcing up. You turn around to look back and see two disfigured bodies. Large bellies and hollowed out faces covered in boils are staring back at you. It's the group that chose the food route.")
+                  print ("But wait, weren't there three of them?")
+                  print ("You look down at the ghoulish looking being and see fingers protruding from his parcel. ")
+                  print ("Oh no, it's over now.")
+                  print ("In a last ditch effort to stop yourself from being devoured by the ghouls, you look around desperately for any potential escape route.")
+                  print ("There!")
+                  print ("To the left of you, a small crack in the canyon wall appears to be a potential exit.")
+                  print ("You make a sprint for it and the ghouls follow quickly behind, but you're faster and manage to make it into the crack in the wall just barely ahead of them.")
+                  print ("But what's this?")
+                  print ("The rough outline of the letter, V, appears along the canyon wall.")
+                  print ("The intense feeling of fear wells up inside you. You know the V symbol was bad, but what was so dangerous about it again? It's too bad your game device is broken, otherwise you'd have the info at hand.")
+                  print ("Think damn it, thi....")
+                  print ("ARGHHHH")
+                  print ("OWWWW!")
+                  print ("You drop to the floor howling in pain. Your hand appears to be bleeding. Have the ghouls caught up to you? Was this a trap? Struggling to get up, you drag yourself across the canyon floor only to see several dark eyes staring back at you.")
+                  print ("Suddenly you realize, the V stood for deadly snake valley. In your final moments, you feel something slithering around your arm.")
+                  print ("You faintly turn your head to the right, the neurotoxins immobilizing your hearing and vision. As you take your final breaths you hear a soft hiss in your ear. ")
+                  print ("The Northern Death Adder")
+                  print ("Bad end, GAME OVER!")
+                else:
+                  print ("Bad end, GAME OVER!")
+              elif proceed == "south":
+                print ("As you continue south, you get the strange sensation that someone is watching you, but how can that be? You're the only one who had directions to the fourth checkpoint and the only one who traveled north from there.")
+                print ("Unless....")
+                print ("No")
+                print ("It can't be!")
+                print ("Shocked by the realization that the realization you've uncovered, you stumble on a rock and trip. The game device falls out of your hands and breaks. What are you going to do now? You realize the other players were too given instructions to roam freely about the Labyrinth.") 
+                print ("Thud")
+                print ("Thud")
+                print ("Thud") 
+                print ("The footsteps are getting louder and closer, one of the groups must be approaching. But your game device is broken, all your information on traps and poisonous foods is gone. All there is left to do is run.") 
+                print ("You keep running south. The canyon walls seem to be getting narrower as you go, but at least you can meters of road in front of you. Hoping desperately that you can outrun them, you make your way through the walls of the Labyrinth. But then, suddenly, your hopes drop. Up in front, less than 200m away is a canyon wall. You've reached a dead end. From behind you can hear footsteps approaching. The group is catching up. You turn around to look back and see two disfigured bodies. Large bellies and hollowed out faces covered in boils are staring back at you. It's the group that chose the food route.")
+                print ("But wait, weren't there three of them?")
+                print ("You look down at the ghoulish looking being and see fingers protruding from his parcel. ")
+                print ("Oh no, it's over now.")
+                print ("You plead for the ghouls to spare you from their cannibalistic desires, but they only get excited by your whimpers of fear. ")
+                print ("In a second it will all be over they say, sheepishly grinning at you.")
+                print ("Bad end, GAME OVER!")
+              elif proceed == "east":
+                print ("As you continue along north, you get the strange sensation that someone is watching you, but how can that be? You're the only one who had directions to the fourth checkpoint and the only one who traveled north from there.")
+                print ("Unless....")
+                print ("No")
+                print ("It can't be!")
+                print ("Shocked by the realization that the realization you've uncovered, you stumble on a rock and trip. What are you going to do now You realize the other players were too given instructions to roam freely about the Labyrinth.") 
+                print ("Thud")
+                print ("Thud")
+                print ("Thud") 
+                print ("The footsteps are getting louder and closer, one of the groups must be approaching.") 
+                print ("You see two gaps in the canyon wall and turn left hoping the other group will turn right.")
+                print ("Step")
+                print ("Step")
+                print ("Step")
+                print ("The steps appear to be getting quitter. It appears the other group has chosen to take the path on the right. But you're not in the clear yet. After discovering you were not ahead of them, they would turn back and choose the left path. Surely there wouldn't be time to escape and double back. What else was there to do?")
+                print ("That's it, the game device! The game device had instructions for building a trap and you still had your items from the second checkpoint. What were they again?")
+                print ("Ah")
+                print (Items)
+                print ("Time to build a trap.")
+                print ("As quickly as possible, you assemble a spring spear trap and wait for your prey to arrive.")
+                print ("Suddenly you hear footsteps approaching. The group is catching up. You turn around to look back and see two disfigured bodies. Large bellies and hollowed out faces covered in boils are staring back at you. It's the group that chose the food route.")
+                print ("But wait, weren't there three of them?")
+                print ("You look down at the ghoulish looking being and see fingers protruding from his parcel. ")
+                print ("Oh no, it's over now.")
+                print ("You plead for the ghouls to spare you from their cannibalistic desires, but they only get excited by your whimpers of fear.")
+                print ("They take a step forward, and then another, and another and......")
+                print ("DOOOOOZSH")
+                print ("Aghhhhhh")
+                print ("The pair lets out a ghoulish scream as they breath their last breaths. ")
+                print ("That's it, you're the only one left!")
+                print ("This means you won.")
+                print ("Suddenly, the ground beneath you collapses. The canyon walls crumble alongside you. Everything starts to disintegrate until all you can see is darkness. You close your eyes, trying to process what just happened. ")
+                print ("When you wake up, three men surround you in dark coats. You turn to see a needle in your arm and one of the men hands you an envelope before the group leaves for the door. Everything appearing silent again, you remove the needle from your arm and proceed to open the envelope.")
+                print ("It reads: Congratulations, you have escaped the simulation and won the prize money. Inside this envelope, you will find a check for $100,000,000.")
+                print ("You've won, GOOD END!")
+              elif proceed == "west":
+                print ("As you continue along north, you get the strange sensation that someone is watching you, but how can that be? You're the only one who had directions to the fourth checkpoint and the only one who traveled north from there.")
+                print ("Unless....")
+                print ("No")
+                print ("It can't be!")
+                print ("Shocked by the realization that the realization you've uncovered, you stumble on a rock and trip. The game device falls out of your hands and breaks. What are you going to do now? You realize the other players were too given instructions to roam freely about the Labyrinth.") 
+                print ("Thud")
+                print ("Thud")
+                print ("Thud") 
+                print ("The footsteps are getting louder and closer, one of the groups must be approaching. But your game device is broken, all your information on traps and poisonous foods is gone. All there is left to do is run.") 
+                print ("You see two gaps in the canyon wall and turn left hoping the other group will turn right.")
+                print ("Step")
+                print ("Step")
+                print ("Step")
+                print ("The steps appear to be getting quitter. If you move quickly, there would be enough time to double back the way you came and escape the ghouls.")
+                print ("You return to the gap and spring back the way you came without looking back, fuelled by adrenaline.")
+                print ("You keep running until you find an alcove in the canyon wall to hide in. Great, you think, I'll just hide out here while those fools run around and starve themselves to the end. All I need now is some food and some water.")
+                print ("You refer back to your game boy to verify which plants are edible and which are not. After feeding on some edible flowers and you doze off, planning to collect some rain water when you wake up.")
+                sleep = input ("How many hours have you been asleep for?")
+                print ("Quite shocking that's how much you slept given how stressed and exhausted you are.")
+                print ("Luckily the ground appears dry which means you haven't slept through a rainfall, but you are quite thirsty. Hopefully it will rain soon.")
+                print (sleep) ("days have gone by and still no rain.")
+                print ("You sit there, fuming under the hot sun, desperate for a drink of water. But with nothing left in your canteen and not a cloud in the sky, there's no way you'll make it another day, or even a few more hours in the bungle bungle. ")
+                input ("You look up at the sky and say .")
+                print ("Bad end, GAME OVER!")
+              else:
+                print ("You must choose north, south, east or west") 
+             else:
+              print ("Bad end, GAME OVER!")
+
+           else:
+             print ("Bad end, GAME OVER!")
+          else:
+            print ("Bad end, GAME OVER!")   
+    
+    if nsew == "south":
+      print ("As you've noticed, the walls of canyons surrounding you are extremely brittle, therefore climbing them is illegal and will be pusnished with severe penalties. Making fires in close proximity to one another or the construction of any SOS markers is also punishable.")
+      south = input ("Do you wish to travel to the next checkpoint or stay put (travel/stay put)?  ")
+      if north == "travel":
+          print ("Welcome to the second checkpoint! At this checkpoint you will be given food. Behind the tree you just passed is a parcel containing 20 packs of FS biscuts, 5 canteens of water, 20 snack bars, and 20 beers. Whoopie, aren't you glad you chose food and ended up with such savory items?  ")
+          Cthree= input ("Do you return to the first checkpoint to see what the others have collected and obtain your share or do you proceed to checkpoint three? (proceed/return)? ")
+          if Cthree == "return":
+           print ("On your way to the first checkpoint, you start to wonder whether or not it would be wise to share all of your items with the others. I mean after all, who knows how long this will draw out, and how cooperative the others will be. Maybe it would be better to hide the beers and FS biscuts, but bring back the snack bars and water so there is something to share.")
+           print ("Yeah, that sounds like a good idea, and look....up ahead.... there's an alcove I can store the items in for now, wonderful.")
+           print ("You stash the extra items")
+           print("You've returned to the second checkpoint and find the others there. Everyone lays out there items to share, but something doesn't seem right. On the ground in front of you there are 20 meal bars, 2 canteens of water, 1 knife, 1 life tool, 1 sharpened rod, 1 wire saw, 1 line of fishing reel, 1 police baton, 1 can of bug spray and 1 snake bike kit.") 
+          Items= input ("What items do you take? ")
+          print ("You look overhead as a raindrop falls on your nose, traveling in a downpour would mean getting soaked and possibly damaging your game device. On the other hand, who knows how long this game will last and when you'll get hungry again. Plus, the others are looking pretty restless right now.")
+          ln_ll = input ("Do you leave now or wait out the rain (leave now/wait out the rain?")
+          if ln_ll == "leave now": 
+           print ("At the third checkpoint, you arrive to find another 10 packs of FS biscuits and 20 beers.")
+           print ("You eat the biscuits and drink the beers, but this only serves to aggravate your hunger.")
+           print ("You try to push on and head for the fourth checkpoint as instructed by the game machine, but halfway there you're overtaken by the desire to eat something more filling. A protein source would do well right now you think to yourself.")
+           print ("Up ahead you see one of the other members that chose the southern route as well, they too must be hungry, but you are hungrier you say to yourself.")
+           approach= input ("Do you approach the person ahead of you (yes/no) ?")
+          if approach == "yes":
+              print ("You approach them from behind, overtaking them with surprising force. Within seconds the person falls to the ground. A gooey fluid trickled from their head and they have appeared to have stopped moving. Finally, a feast.")
+              print ("After your meal, you venture on the fourth checkpoint, only to again receive another 10 packs of FS biscuits and 20 beers. ")
+              print ("Consuming the beers and biscuits, your hunger for meat only grows. Just then, you hear footsteps in front of you. Another meal you think to yourself. You begin following the sound of the footsteps, careful not to let your prey hear you. You turn the corner of one of the canyon walls and see a feeble man making his way along the path, blissfully unaware that he is being watched.")
+              follow= input ("Do you follow the man (yes/no)?")
+              if follow == "yes":
+                print ("As you approach him your breathing gets louder. He hears you and turns around to see who is following him. The look of fear on his face only motivating you to move faster.")
+                print ("Shoot, he veered off to the left. That's okay, I'll get you")
+                print ("You turn the left corner and find him standing there, frozen in shock.")
+                print ("You take a step forward and then another step forward and then.....ARGH")
+                print ("You turn to see a rod sticking out of your shoulder, the words, bad end, on your game screen flashing before you as everything goes dim.") 
+                print ("Bad end, GAME OVER!")
+                pass
+                print ("Bad end, GAME OVER!")
+              else:
+                print ("Bad end, GAME OVER!")
+              pass
+              print ("Bad end, GAME OVER!")
+        
+          else:
+            print ("Bad end, GAME OVER!")
+    
+
+  if wants_to_play == "no":
+    print ("See you later!")
+    exit
+else:
+  print("You are not old enough to play...")
