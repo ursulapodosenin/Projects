@@ -1,0 +1,143 @@
+---
+title: "Health_Project"
+author: "Ursula Podosenin"
+date: "2024-02"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+In this exploratory analysis, I am using a data set called "Life Expectancy Data," from the World Health Statistics 2020|Complete|Geo-Analysis. The link to the Kaggle source for the data is https://www.kaggle.com/datasets/utkarshxy/who-worldhealth-statistics-2020-complete. 
+
+
+```{r Install and load the required packages}
+
+install.packages("ggplot2", repos = "http://cran.us.r-project.org")
+library("ggplot2")
+library("dplyr")
+library("tidyverse")
+install.packages("Hmisc", repos = "http://cran.us.r-project.org") 
+library("Hmisc")
+install.packages("corrplot", repos = "http://cran.us.r-project.org")
+library("corrplot")
+install.packages("lubridate", repos = "http://cran.us.r-project.org")
+library("lubridate") 
+```
+
+
+```{r Reading the csv file into a data frame and creating a graph of life expectancy data}
+
+# Loading the data into a data frame
+life_expectancy_data= data.frame(read.csv("/Users/ursulapodosenin/Desktop/Life_Expectancy_Data.csv"))
+
+# Getting a preview of the data 
+glimpse(life_expectancy_data)
+str(life_expectancy_data)
+sum(is.na(life_expectancy_data))
+
+# Grouping the data
+trimmed_data_one<- life_expectancy_data[1:400, ]
+trimmed_data_two<- life_expectancy_data[401:800, ]
+trimmed_data_three<- life_expectancy_data[801:1200, ]
+trimmed_data_four<- life_expectancy_data[1201:1649, ]
+```
+
+
+```{r}
+
+#Graphing life expectancy by country 
+ggplot(data = trimmed_data_one, aes(x = Life.expectancy, y= Country))+
+  geom_line(color= "blue", size= 1)+
+  labs(x= "Life Expectancy", Y= "Country")+
+   xlim(c(40, 100))+
+    theme_bw()
+
+ggplot(data = trimmed_data_two, aes(x = Life.expectancy, y= Country))+
+   geom_line(color= "blue", size= 1)+
+    labs(x= "Life Expectancy", Y= "Country")+
+     xlim(c(40, 100))+
+      theme_bw()
+
+ggplot(data = trimmed_data_three, aes(x = Life.expectancy, y= Country))+
+   geom_line(color= "blue", size= 1)+
+    labs(x= "Life Expectancy", Y= "Country")+
+     xlim(c(40, 100))+
+      theme_bw()
+
+ggplot(data = trimmed_data_four, aes(x = Life.expectancy, y= Country))+
+   geom_line(color= "blue", size= 1)+
+    labs(x= "Life Expectancy", Y= "Country")+
+     xlim(c(40, 100))+
+      theme_bw()
+```
+
+
+```{r Looking at life expectancy of adults compared to children}
+
+# Adding a new column to the original data frame with the new data 
+life_expectancy_data$infant_deaths_relative_to_adults<- life_expectancy_data$infant.deaths/life_expectancy_data$Adult.Mortality
+
+# Plotting infant deaths relative to adults by country status 
+ggplot(data= life_expectancy_data, aes(x= Status, y= infant_deaths_relative_to_adults))+
+  geom_point(color= "purple", size= 2.5)+
+   labs(x= "Country Status", y= "Infant Deaths Relative to Adults")+
+  theme_minimal() + theme_bw()
+```
+
+```{r Creating a correlation matrix}
+
+# Creating a subset of the original data 
+Afghanistan_data<- life_expectancy_data[1:16, ]
+Afghanistan_data
+subset_Afghanistan_data<- Afghanistan_data[, c("Life.expectancy", "Measles", "Diphtheria", "Hepatitis.B", "Polio")]
+
+# Obtaining the p-values   
+p_values <- rcorr(as.matrix(subset_Afghanistan_data))
+print(p_values)
+
+# Creating a visual correlation matrix
+head(subset_Afghanistan_data)
+M<- cor(subset_Afghanistan_data)
+corrplot(M, method= "ellipse")
+
+#Creating a numeric correlation matrix
+head(subset_Afghanistan_data)
+M<- cor(subset_Afghanistan_data)
+corrplot(M, method= "number")
+```
+
+```{r Gettting some descriptive statistics of a subset of the original data}
+
+# Creating a new data frame with a subset of the original data
+subset_two_life_expectancy_data<- life_expectancy_data[, c("Country", "Hepatitis.B", "Measles", "Polio", "Diphtheria", "HIV.AIDS")]
+
+# Obtaining some summary statistics for some health conditions in each country 
+subset_two_life_expectancy_data |>
+  group_by(Country) |>
+    summarise(average_number_of_hepb_patients= mean(Hepatitis.B),
+              range_of_measles_patients= range(Measles),
+              range_of_polio_patients= range(Polio),
+              average_number_of_diphtheria_patients= mean(Diphtheria),
+              average_number_of_diphtheria_patients= mean(HIV.AIDS))
+```
+
+```{r Creating a simple predictive analysis}
+
+# Creating a data frame with the subset of data that is going to be used 
+Afghanistan_data<- life_expectancy_data[1:16, ]
+
+# Creating a graph of time series data 
+myts <- ts(Afghanistan_data$Measles, start=c(2000), end=c(2015), frequency=12)
+myts2 <- window(myts, start=c(2014, 1), end=c(2014, 12))
+plot(myts2,
+      xlab ="Year",  
+          ylab ="Number of People",  
+          main ="Prevalence of Measles in Afghanistan",   
+          col.main ="darkgreen")+
+              xlim(2014, 2015)+
+              ylim(0, 10000)
+```
