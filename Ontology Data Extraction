@@ -1,0 +1,77 @@
+---
+title: "Bioinformatics"
+author: "Ursula Podosenin"
+date: "2024-05-01"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+### Using the Experimental Factor Ontology (https://www.ebi.ac.uk/ols4/ontologies/efo), find the most appropriate code for Parkinson Disease. Note, the term may be imported from another ontology.
+
+```{r}
+
+# Install and load required packages
+install.packages("httr")
+library(httr)
+
+# Define function to get code from EBI OLS API
+get_code_from_api <- function(url) {
+  response <- GET(url)
+  if (http_error(response)) {
+    stop("HTTP error: ", http_status(response)$reason)
+  }
+  parsed_response <- content(response, "parsed")
+  code <- parsed_response$obo_id
+  return(code)
+}
+
+# URL of the API endpoint
+url <- "https://www.ebi.ac.uk/ols/api/ontologies/mondo/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FMONDO_0005180"
+
+# Get the code from the API
+code <- get_code_from_api(url)
+
+print(code)
+```
+
+### What are the direct children of the Parkinson Disease term in the MONDO ontology (give codes and names)?
+
+```{r}
+
+# Load required packages
+install.packages("jsonlite")
+library(jsonlite)
+
+getwd()
+# Read the compressed JSON file
+data <- jsonlite::fromJSON(gzfile("/Users/ursulapodosenin/Desktop/ontologies.json.gz"))
+
+# Define function to extract direct children
+extract_direct_children <- function(data, term_id) {
+  term <- data$ontologies$mondo$terms[[term_id]]
+  if (!is.null(term$children)) {
+    children <- term$children
+    children_data <- lapply(children, function(child) {
+      child_term <- data$ontologies$mondo$terms[[child]]
+      data.frame(code = child, name = child_term$label)
+    })
+    children_df <- do.call(rbind, children_data)
+    row.names(children_df) <- NULL
+    return(children_df)
+  } else {
+    return(NULL)
+  }
+}
+
+# Extract direct children of Parkinson Disease term in MONDO ontology
+parkinson_children <- extract_direct_children(data, "MONDO:0005180")
+
+# Print codes and names of direct children
+print(parkinson_children)
+
+```
