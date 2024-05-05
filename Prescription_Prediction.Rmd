@@ -1,0 +1,413 @@
+---
+title: "Prescription Prediction"
+author: "Ursula Podosenin"
+date: "2024-04-21"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+# Installing the required packages
+library(tidyverse)
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(jsonlite)
+install.packages("readr", repos = "http://cran.us.r-project.org")
+library(readr)
+install.packages("tidytext" ,repos = "http://cran.us.r-project.org")
+library("tidytext")
+install.packages("stringr",repos = "http://cran.us.r-project.org")
+library(stringr)
+install.packages("forecast",repos = "http://cran.us.r-project.org")
+library("forecast")
+install.packages("zoo" ,repos = "http://cran.us.r-project.org")
+library("zoo")
+```
+
+```{r}
+
+# Getting the working directory 
+getwd()
+
+# Reading the contents of the tsv file using read_tsv() function and getting a look at the data
+drug_reviews<-readr::read_tsv("/Users/ursulapodosenin/Desktop/drugreviews.tsv")
+glimpse(drug_reviews)
+```
+
+```{r}
+
+# Reading the contents of the csv file using read.csv() function and getting a look at the data
+prescription_refills<-as.data.frame(read.csv("/Users/ursulapodosenin/Desktop/prescriptiondata2010.csv"))
+
+# Creating a new data frame with the columns I need 
+state<-prescription_refills[,3]
+prescription_refills<-prescription_refills[,14:16]
+prescription_refills<-cbind(state, prescription_refills)
+glimpse(prescription_refills)
+
+# Renaming the columns of the data frame
+colnames(prescription_refills) <- c("State", "Percent_SSRISNRI_Prescription", "Percent_Dementia_Prescription", "Percent_SedativeHypnotic_Prescription")
+
+# Plotting prescription refills by state using ggplot2
+ggplot(prescription_refills, aes(x = State)) +
+  geom_bar(aes(y = Percent_SSRISNRI_Prescription, fill = "SSRI/SNRI"), stat = "identity", position = "dodge") +
+  geom_bar(aes(y = Percent_Dementia_Prescription, fill = "Dementia"), stat = "identity", position = "dodge") +
+  geom_bar(aes(y = Percent_SedativeHypnotic_Prescription, fill = "Sedative/Hypnotic"), stat = "identity", position = "dodge") +
+  labs(title = "Prescription Refills by State",
+       y = "Percentage",
+       x = "State",
+       fill = "Drug Type") +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "top") +
+  scale_fill_manual(values = c("black", "green", "blue"),
+                    labels = c("Dementia", "Sedative/Hypnotic", "SSRI/SNRI"))
+
+# Filtering by data selective to New York
+ny2010<- prescription_refills[prescription_refills$State== "New York", ]
+ny2010
+```
+### This graph shows the percentage of prescription refills by state for each drug category for the year 2010. For the rest of this code, the focus will be on SSRI/SNRI and Sedative/Hypnotic prescriptions from the years 1998 through 2030. The code below extracts data from several medications from the years 1998 through 2023.
+
+```{r}
+
+# Reading the contents of the csv file using read.csv() function and getting a look at the data
+prescriptions2023<-as.data.frame(read.csv("/Users/ursulapodosenin/Desktop/prescriptions2023.csv"))
+glimpse(prescriptions2023)
+prescriptions2023$product_name <- as.character(tolower(prescriptions2023$product_name))
+
+# SSRI/SNRIs 2023
+prozac2023<-prescriptions2023[prescriptions2023$product_name== "fluoxetine", ]
+zoloft2023<-prescriptions2023[prescriptions2023$product_name== "sertraline", ]
+lexapro2023<-prescriptions2023[prescriptions2023$product_name== "citalopram", ] 
+wellbutrin2023<-prescriptions2023[prescriptions2023$product_name== "wellbutrin", ]
+effexor2023<-prescriptions2023[prescriptions2023$product_name== "effexor xr", ]
+
+# Sedatives/Hypnotics 2023
+xanax2023<-prescriptions2023[prescriptions2023$product_name== "alprazolam", ]
+klonopin2023<-prescriptions2023[prescriptions2023$product_name== "clonazepam", ]
+
+# Creating a data frame with the medications I need for 2023
+prescriptions_2023<- rbind(prozac2023, zoloft2023, lexapro2023, wellbutrin2023, effexor2023, xanax2023, klonopin2023)
+glimpse(prescriptions_2023)
+```
+
+
+```{r}
+
+# Reading the contents of the csv file using read.csv() function and getting a look at the data
+prescriptions2018<-as.data.frame(read.csv("/Users/ursulapodosenin/Desktop/prescriptions2018.csv"))
+glimpse(prescriptions2018)
+prescriptions2018$product_name <-tolower(prescriptions2018$product_name)
+
+# SSRI/SNRIs 2018
+prozac2018<-prescriptions2018[prescriptions2018$product_name== "fluoxetine", ]
+zoloft2018<-prescriptions2018[prescriptions2018$product_name== "sertraline", ]
+lexapro2018<-prescriptions2018[prescriptions2018$product_name== "citalopram", ] 
+wellbutrin2018<-prescriptions2018[prescriptions2018$product_name== "wellbutrin", ]
+effexor2018<-prescriptions2023[prescriptions2018$product_name== "effexor xr", ]
+
+# Sedatives/Hypnotics 2018
+xanax2018<-prescriptions2018[prescriptions2018$product_name== "alprazolam", ]
+klonopin2018<-prescriptions2018[prescriptions2018$product_name== "clonazepam", ]
+
+# Creating a data frame with the medications I need for 2018
+prescriptions_2018<- rbind(prozac2018, zoloft2018, lexapro2018, wellbutrin2018, effexor2018, xanax2018, klonopin2018)
+glimpse(prescriptions_2018)
+
+```
+
+
+```{r}
+
+# Reading the contents of the csv file using read.csv() function and getting a look at the data
+prescriptions2013<-as.data.frame(read.csv("/Users/ursulapodosenin/Desktop/prescriptions2013.csv"))
+glimpse(prescriptions2013)
+prescriptions2013$product_name <-tolower(prescriptions2013$product_name)
+
+# SSRI/SNRIs 2013
+prozac2013<-prescriptions2013[prescriptions2013$product_name== "fluoxetine", ]
+zoloft2013<-prescriptions2013[prescriptions2013$product_name== "sertraline", ]
+lexapro2013<-prescriptions2013[prescriptions2013$product_name== "citalopram", ] 
+wellbutrin2013<-prescriptions2013[prescriptions2013$product_name== "wellbutrin", ]
+effexor2013<-prescriptions2013[prescriptions2013$product_name== "effexor xr", ]
+
+# Sedatives/Hypnotics 2013
+xanax2013<-prescriptions2013[prescriptions2013$product_name== "alprazolam", ]
+klonopin2013<-prescriptions2013[prescriptions2013$product_name== "clonazepam", ]
+
+# Creating a data frame with the medications I need for 2013
+prescriptions_2013<- rbind(prozac2013, zoloft2013, lexapro2013, wellbutrin2013, effexor2013, xanax2013, klonopin2013)
+glimpse(prescriptions_2013)
+```
+
+
+```{r}
+
+# Reading the contents of the csv file using read.csv() function and getting a look at the data
+prescriptions2008<-as.data.frame(read.csv("/Users/ursulapodosenin/Desktop/prescriptions2008.csv"))
+glimpse(prescriptions2008)
+prescriptions2008$product_name <-tolower(prescriptions2008$product_name)
+
+# SSRI/SNRIs 2008
+prozac2008<-prescriptions2008[prescriptions2008$product_name== "fluoxetine", ]
+zoloft2008<-prescriptions2008[prescriptions2008$product_name== "sertraline", ]
+lexapro2008<-prescriptions2008[prescriptions2008$product_name== "citalopram", ] 
+wellbutrin2008<-prescriptions2008[prescriptions2008$product_name== "wellbutrin", ]
+effexor2008<-prescriptions2008[prescriptions2008$product_name== "effexor xr", ]
+
+# Sedatives/Hypnotics 2008
+xanax2008<-prescriptions2008[prescriptions2008$product_name== "alprazolam", ]
+klonopin2008<-prescriptions2008[prescriptions2008$product_name== "clonazepam", ]
+
+# Creating a data frame with the medications I need for 2008
+prescriptions_2008<- rbind(prozac2008, zoloft2008, lexapro2008, wellbutrin2008, effexor2008, xanax2008, klonopin2008)
+glimpse(prescriptions_2008)
+
+```
+
+```{r}
+
+# Reading the contents of the csv file using read.csv() function and getting a look at the data
+prescriptions2003<-as.data.frame(read.csv("/Users/ursulapodosenin/Desktop/prescriptions2003.csv"))
+glimpse(prescriptions2003)
+prescriptions2003$product_name <-tolower(prescriptions2003$product_name)
+
+# SSRI/SNRIs 2003
+prozac2003<-prescriptions2003[prescriptions2003$product_name== "fluoxetine", ]
+zoloft2003<-prescriptions2003[prescriptions2003$product_name== "sertraline", ]
+lexapro2003<-prescriptions2003[prescriptions2003$product_name== "citalopram", ] 
+wellbutrin2003<-prescriptions2003[prescriptions2003$product_name== "wellbutrin", ]
+effexor2003<-prescriptions2003[prescriptions2003$product_name== "effexor xr", ]
+
+# Sedatives/Hypnotics 2003
+xanax2003<-prescriptions2003[prescriptions2003$product_name== "alprazolam", ]
+klonopin2003<-prescriptions2003[prescriptions2003$product_name== "clonazepam", ]
+
+# Creating a data frame with the medications I need for 2003
+prescriptions_2003<- rbind(prozac2003, zoloft2003, lexapro2003, wellbutrin2003, effexor2003, xanax2003, klonopin2003)
+glimpse(prescriptions_2003)
+```
+
+```{r}
+
+# Reading the contents of the csv file using read.csv() function and getting a look at the data
+prescriptions1998<-as.data.frame(read.csv("/Users/ursulapodosenin/Desktop/prescriptions1998.csv"))
+glimpse(prescriptions1998)
+prescriptions1998$product_name <-tolower(prescriptions1998$product_name)
+
+# SSRI/SNRIs 1998
+prozac1998<-prescriptions1998[prescriptions1998$product_name== "fluoxetine", ]
+zoloft1998<-prescriptions1998[prescriptions1998$product_name== "sertraline", ]
+lexapro1998<-prescriptions1998[prescriptions1998$product_name== "citalopram", ] 
+wellbutrin1998<-prescriptions1998[prescriptions1998$product_name== "wellbutrin", ]
+effexor1998<-prescriptions1998[prescriptions1998$product_name== "effexor xr", ]
+
+# Sedatives/Hypnotics 1998
+xanax1998<-prescriptions1998[prescriptions1998$product_name== "alprazolam", ]
+klonopin1998<-prescriptions1998[prescriptions1998$product_name== "clonazepam", ]
+
+# Creating a data frame with the medications I need for 1998
+prescriptions_1998<- rbind(prozac1998, zoloft1998, lexapro1998, wellbutrin1998, effexor1998, xanax1998, klonopin1998)
+glimpse(prescriptions_1998)
+```
+
+### Now that the desired data has been extracted, the focus shifts to getting an idea of what the prescription data looks like across the years.
+
+```{r}
+
+# Combining prescription data from multiple years into a single data frame
+prescriptions_total_years <- bind_rows(prescriptions_2023, prescriptions_2018, prescriptions_2013, prescriptions_2008, prescriptions_2003, prescriptions_1998)
+
+# Creating a clean version of the combined data frame by removing rows with any missing values
+prescriptions_total_years_clean <- prescriptions_total_years[complete.cases(prescriptions_total_years),]
+
+# Grouping the cleaned data frame by product name and year, then calculating various summary statistics
+prescriptions_total_years_clean|>
+  group_by(product_name)|>
+    summarise(total_prescriptions= sum(number_of_prescriptions),
+              average_prescriptions= mean(number_of_prescriptions),
+              min_prescriptions= min(number_of_prescriptions),
+              max_prescriptions= max(number_of_prescriptions),
+              range_prescriptions= range(number_of_prescriptions),
+              sd_prescriptions= sd((number_of_prescriptions)
+    ))
+      
+# Selecting the columns needed for analysis 
+year_and_number_of_prescriptions_by_name <- prescriptions_total_years_clean[, c("year", "product_name", "number_of_prescriptions")]
+glimpse(year_and_number_of_prescriptions_by_name)
+
+# Grouping the data by product name and year, calculating the total prescriptions, and arranging the data by product name
+data_for_predictions <- year_and_number_of_prescriptions_by_name |> 
+  group_by(product_name, year) |> 
+  summarise(total_prescriptions = sum(number_of_prescriptions), .groups = 'drop') |> 
+  arrange(product_name, desc(year))
+glimpse(data_for_predictions)
+```
+
+### Now, a linear model will be used to project the number of prescriptions for each medication into the year 2030.
+
+```{r}
+
+# Filtering the data frame for the relevant product names
+selected_names <- c("alprazolam", "citalopram", "clonazepam", "effexor xr", "fluoxetine", "sertraline", "wellbutrin")
+filtered_data <- data_for_predictions[data_for_predictions$product_name %in% selected_names, ]
+
+# Fitting a linear regression model for each product
+models <- filtered_data |> 
+  group_by(product_name) |> 
+  do(model = lm(total_prescriptions ~ year, data = .))
+
+# Predicting the total prescriptions for 2028
+predictions <- models |> 
+  mutate(predicted_prescriptions_2028 = predict(model, newdata = data.frame(year = 2028)))
+
+# Plotting the trend line and predictions
+ggplot(filtered_data, aes(x = year, y = total_prescriptions, color = product_name)) +
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE, fullrange = TRUE) +  
+  geom_text(data = predictions, aes(label = round(predicted_prescriptions_2028), x = 2030, y = predicted_prescriptions_2028), vjust = -0.5) +  
+  labs(title = "Total Prescriptions Trend and Prediction for 2028",
+       x = "Year",
+       y = "Total Prescriptions") +
+  theme_minimal() +
+  scale_y_continuous(labels = function(x) format(x, scientific = FALSE))  
+
+# Predicting the total prescriptions for 2030
+predictions_2030 <- models |>
+  mutate(predicted_prescriptions_2030 = predict(model, newdata = data.frame(year = 2030)))
+predictions_2030
+```
+
+### Based on the graphic and data table, it appears that Wellbutrin is the most likely to see a decrease in presciptions, while Sertraline, also known as Zoloft, is the the most likely to see an increase in prescriptions. 
+
+
+### Going in a slightly different direction for a moment, a sentiment analysis will be performed on the reviews that patients left for each drug. 
+
+```{r}
+
+# Obtaining different sentiment analysis libraries
+get_sentiments("afinn")
+get_sentiments("nrc")
+get_sentiments("bing")
+```
+
+
+```{r}
+
+# Organizing the SSRI's/ SNRIs medications into one data frame
+Fluoxetine <- drug_reviews[drug_reviews$drugName == "Prozac", ]
+Sertraline <- drug_reviews[drug_reviews$drugName == "Zoloft", ]
+Wellbutrin <- drug_reviews[drug_reviews$drugName == "Wellbutrin", ]
+Citalopram <- drug_reviews[drug_reviews$drugName == "Celexa", ]
+Effexor <- drug_reviews[drug_reviews$drugName == "Effexor", ]
+ssrisnri<- rbind(Fluoxetine, Sertraline, Wellbutrin, Citalopram, Effexor)
+glimpse(ssrisnri)
+
+# Renaming the prescriptions 
+ssrisnri$drugName<-ifelse(ssrisnri$drugName== "Prozac", "fluoxetine", ssrisnri$drugName)
+ssrisnri$drugName<-ifelse(ssrisnri$drugName== "Zoloft", "sertraline", ssrisnri$drugName)
+ssrisnri$drugName<-ifelse(ssrisnri$drugName== "Celexa", "citalopram", ssrisnri$drugName)
+ssrisnri$drugName<-ifelse(ssrisnri$drugName== "Effexor", "effexor xr", ssrisnri$drugName)
+ssrisnri$drugName<-ifelse(ssrisnri$drugName== "Wellbutrin", "wellburtin", ssrisnri$drugName)
+
+# Performing the sentiment analysis
+ssrisnri_sentiment <- ssrisnri |>
+  dplyr::select(drugName, review) |>  
+  mutate(review = as.character(review)) |> 
+  unnest_tokens(word, review) |>  
+  inner_join(get_sentiments("bing")) |> 
+  count(drugName, sentiment) |>  
+  pivot_wider(names_from = sentiment, values_from = n, values_fill = 0) |> 
+  mutate(sentiment_score = positive - negative)
+
+# Viewing the resulting data frame and finding the average sentiment score
+print(ssrisnri_sentiment)
+mean(ssrisnri_sentiment$sentiment_score)
+
+# Creating a bar plot of sentiment scores for each drug
+ggplot(ssrisnri_sentiment, aes(x = drugName, y = sentiment_score, fill = sentiment_score > 0)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Sentiment Analysis of SSRI and SNRI Medications",
+       x = "Drug Name",
+       y = "Sentiment Score",
+       fill = "Sentiment") +
+  scale_fill_manual(values = c("red", "green"), labels = c("Negative", "Positive")) +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  
+```
+### Based on the sentiment analysis for the SSRI/SNRI drug classes, it appears that sertraline has the greatest negative sentiment overall. 
+
+```{r}
+
+# Organizing the Sedative/Hypnotic Medications into one data
+Alprazolam <- drug_reviews[drug_reviews$drugName == "Xanax", ]
+Clonazepam <- drug_reviews[drug_reviews$drugName == "Klonopin", ]
+sedativehypnotic<-rbind(Alprazolam, Clonazepam)
+sedativehypnotic$drugName <- ifelse(sedativehypnotic$drugName == "Xanax", "alprazolam", sedativehypnotic$drugName)
+sedativehypnotic$drugName <- ifelse(sedativehypnotic$drugName == "Klonopin", "clonazepam", sedativehypnotic$drugName)
+sedativehypnotic
+
+# Performing the sentiment analysis
+sedativehypnotic_sentiment <- sedativehypnotic |>
+  dplyr::select(drugName, review) |> 
+  mutate(review = as.character(review)) |>  
+  unnest_tokens(word, review) |> 
+  inner_join(get_sentiments("bing")) |>  
+  count(drugName, sentiment) |>  
+  pivot_wider(names_from = sentiment, values_from = n, values_fill = 0) |>  
+  mutate(sentiment_score = positive - negative)
+
+# Viewing the resulting data frame and finding the average sentiment score
+print(sedativehypnotic_sentiment)
+mean(sedativehypnotic_sentiment$sentiment_score)
+
+# Creating a bar plot of sentiment scores for each drug
+ggplot(sedativehypnotic_sentiment, aes(x = drugName, y = sentiment_score, fill = sentiment_score > 0)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Sentiment Analysis of Sedative and Hypnotic Medications",
+       x = "Drug Name",
+       y = "Sentiment Score",
+       fill = "Sentiment") +
+  scale_fill_manual(values = c("red", "green"), labels = c("Negative", "Positive")) +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  
+```
+### Based on the sentiment analysis for the Sedative/Hypnotic drug classes, it appears that alprazolam, also known as Xanax, has the greatest negative sentiment overall. 
+
+### Now that the regression and sentiment analysis have been performed, the goal is to look at the two combined and evaluate the trends. 
+
+```{r}
+
+# Making a combined table of all sentiment scores 
+sentiment_scores<-rbind(ssrisnri_sentiment, sedativehypnotic_sentiment)
+
+# Viewing sentiment scores and prescription predictions for 2030
+sentiment_scores
+predictions_2030
+names(predictions_2030)[1]<- "drugName"
+
+merged_data <- merge(sentiment_scores, predictions_2030, by = "drugName", all.x = TRUE)
+
+# Plotting the relationship between sentiment scores and predicted values for 2030 for each drug
+ggplot(merged_data, aes(x = predicted_prescriptions_2030, y = sentiment_score, color = drugName)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, aes(group = drugName)) +
+  labs(title = "Relationship between Sentiment Scores and Predicted Values for 2030",
+       x = "Predicted Total Prescriptions for 2030",
+       y = "Sentiment Score",
+       color = "Drug Name") +
+  theme_classic() +
+  scale_x_continuous(labels = scales::comma)
+
+```
+
+### This graphic provides an interesting interpretation of the data. While Sertraline was predicted to have the greatest number of prescriptions going into the year 2030, it also had the most negative sentiment overall. Conversely, Effexor had the best sentiment rating of all the medications, but was unlikely to see an upward trend in prescriptions going into the year 2030. From a graphical standpoint, both Sertraline and Effexor appear to be outliers. The remaining data all appear to group around a negative sentiment score of about 300 and an average predicted prescription number of around 400,000. Some data points were excluded, as they contained missing and undefined values. 
+
