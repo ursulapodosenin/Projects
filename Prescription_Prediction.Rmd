@@ -265,16 +265,16 @@ models <- filtered_data |>
   group_by(product_name) |> 
   do(model = lm(total_prescriptions ~ year, data = .))
 
-# Predicting the total prescriptions for 2028
+# Predicting the total prescriptions for 2030
 predictions <- models |> 
-  mutate(predicted_prescriptions_2028 = predict(model, newdata = data.frame(year = 2028)))
+  mutate(predicted_prescriptions_2030 = predict(model, newdata = data.frame(year = 2030)))
 
 # Plotting the trend line and predictions
 ggplot(filtered_data, aes(x = year, y = total_prescriptions, color = product_name)) +
   geom_point() + 
   geom_smooth(method = "lm", se = FALSE, fullrange = TRUE) +  
-  geom_text(data = predictions, aes(label = round(predicted_prescriptions_2028), x = 2030, y = predicted_prescriptions_2028), vjust = -0.5) +  
-  labs(title = "Total Prescriptions Trend and Prediction for 2028",
+  geom_text(data = predictions, aes(label = round(predicted_prescriptions_2030), x = 2030, y = predicted_prescriptions_2030), vjust = -0.5) +  
+  labs(title = "Total Prescriptions Trend and Prediction for 2030",
        x = "Year",
        y = "Total Prescriptions") +
   theme_minimal() +
