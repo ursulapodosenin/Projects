@@ -1,0 +1,382 @@
+---
+title: "Bell's_Palsy"
+author: "Ursula Podosenin"
+date: "2024-05-02"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+install.packages("statsr", repos = "http://cran.us.r-project.org")
+library("statsr")
+install.packages("nlme", repos = "http://cran.us.r-project.org")
+library(nlme)
+install.packages("emmeans", repos = "http://cran.us.r-project.org")
+library(emmeans)
+```
+
+```{r}
+# Reading the url file and creating a data frame
+url= "https://raw.githubusercontent.com/ursulapodosenin/Projects/main/Bells%20Palsy%20Clinical%20Trial.csv"
+BellsPalsyData<-as.data.frame(read.csv(url))
+head(BellsPalsyData)
+```
+
+
+```{r}
+# Creating a function that provides the value of the mode
+Mode <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+
+# Calculating the total number of males and females in the study 
+total_females<-sum(BellsPalsyData=="Female")
+total_males<-sum(BellsPalsyData=="Male")
+total_females
+total_males
+
+# Calculating the total number of participants in the control group and comparing it to the total number of participants
+control_total<-sum(BellsPalsyData$Treatment.Group== "Placebo–Placebo")
+control_total
+noncontrol_total<-sum(BellsPalsyData$Treatment.Group!= "Placebo–Placebo")
+noncontrol_total
+control_ratio<-(control_total/noncontrol_total)
+control_ratio
+```
+
+
+```{r}
+
+# Getting the total number of participants, men and women
+sum_total_f<-sum(BellsPalsyData$Sex== "Female")
+sum_total_f
+sum_total_m<- sum(BellsPalsyData$Sex== "Male")
+sum_total_m
+  
+# Obtaining summary statistics regarding age, grouped by gender
+summ_stats_by_sex<-
+  BellsPalsyData|>
+    group_by(Sex)|>
+     summarise(mean_age= mean(Age),
+              median_age= median(Age),
+              mode_age= Mode(Age),
+              min_age= min(Age),
+              max_age= max(Age),
+              sd_age= sd(Age) )
+summ_stats_by_sex
+
+# Looking at the total number of males and females
+f_sum<-sum(BellsPalsyData$Sex=="Female")
+f_sum
+m_sum<-sum(BellsPalsyData$Sex=="Male")
+m_sum
+
+# Looking at the total number of individuals in the placebo group
+p_sum<-sum(BellsPalsyData$Treatment.Group=="Placebo–Placebo")
+p_sum
+mp_sum<-sum(BellsPalsyData$Treatment.Group=="Placebo–Placebo" & BellsPalsyData$Sex== "Male")
+mp_sum
+fp_sum<-sum(BellsPalsyData$Treatment.Group=="Placebo–Placebo" & BellsPalsyData$Sex== "Female")
+fp_sum
+
+# Extracting the placebo group and putting it into a data frame
+which(BellsPalsyData$Treatment.Group== "Placebo–Placebo")
+placebo_group<-BellsPalsyData[BellsPalsyData$Treatment.Group== "Placebo–Placebo", ]
+head(placebo_group)
+
+# Obtaining summary statistics regarding age, grouped by gender
+summ_stats_by_sex_and_gender<-
+  placebo_group|>
+    group_by(Sex)|>
+     summarise(mean_age= mean(Age),
+              median_age= median(Age),
+              mode_age= Mode(Age),
+              min_age= min(Age),
+              max_age= max(Age),
+              sd_age= sd(Age) )
+summ_stats_by_sex_and_gender
+
+# Getting the baseline score on the House-Brackmann scale for each gender
+mmp_group<-median(placebo_group$Baseline.Score.on.House.Brackmann.scale & placebo_group$Sex== "Male")
+mmp_group
+fmp_group<-median(placebo_group$Baseline.Score.on.House.Brackmann.scale & placebo_group$Sex== "Female")
+fmp_group
+```
+
+
+```{r}
+
+# Creating an additional age group column that groups all participants into an age category 
+BellsPalsyData$agegroup <- case_when(BellsPalsyData$Age >= 0  & BellsPalsyData$Age <= 24 ~ 1,
+                                     BellsPalsyData$Age >= 25  & BellsPalsyData$Age <= 49 ~ 2,
+                                     BellsPalsyData$Age >= 50  & BellsPalsyData$Age <= 74 ~ 3,
+                                     BellsPalsyData$Age >= 75  & BellsPalsyData$Age <= 100 ~ 4)
+```
+
+```{r}
+# Creating a graph that looks at the distribution of age groups in the study 
+ggplot(data=BellsPalsyData, aes(x=agegroup))+
+  geom_bar(binwidth = 5, color="black", fill="blue")+
+  theme_classic()+
+  labs(title = "Frequency of Age Groups", x = "Age Group", y = "Frequency")
+```
+
+
+```{r}
+# The House–Brackmann score is a score to grade the degree of nerve damage in a facial nerve palsy
+# Looking at the most common time frame between the onset of symptoms and start of treatment
+Mode_BP_Data<- Mode(BellsPalsyData$Time.between.onset.of.symptoms.and.start.of.treatment)
+Mode_BP_Data
+
+# Creating an additional column that looks the difference in recovery from baseline compared to 3 months of treatment
+BellsPalsyData['difference_3']= BellsPalsyData$X3.Month.Score.on.House.Brackmann.scale
+-BellsPalsyData$Baseline.Score.on.House.Brackmann.scale
+
+# Creating a graphical representation of the initial score on the House Brackmann scale
+ggplot(data=BellsPalsyData, aes(x=Baseline.Score.on.House.Brackmann.scale
+))+
+  geom_bar(binwidth = 10, color="black", fill="red")+
+  theme_classic()+
+  labs(title = "House Brackmann Score Initial Score", x = "House Brackmann Score", y = "Frequency")
+
+# Creating a graphical representation of the difference between the ending score on the House Brackmann scale and the starting score
+ggplot(data=BellsPalsyData, aes(x=difference_3))+
+  geom_bar(binwidth = 10, color="black", fill="green")+
+  theme_classic()+
+  labs(title = "House Brackmann Score 3 Months After Initial Score", x = "House Brackmann Score", y = "Frequency")
+
+# Creating an additional column that looks the difference in recovery from baseline compared to 9 months of treatment
+BellsPalsyData['difference_3']= BellsPalsyData$X9.Month.Score.on.House.Brackmann.scale
+-BellsPalsyData$Baseline.Score.on.House.Brackmann.scale
+
+# Creating a graphical representation of the difference between the ending score on the House Brackmann scale and the starting score
+ggplot(data=BellsPalsyData, aes(x=difference_3))+
+  geom_bar(binwidth = 10, color="black", fill="blue")+
+  theme_classic()+
+  labs(title = "House Brackmann Score 9 Months After Initial Score", x = "House Brackmann Score", y = "Frequency")
+
+# Creating a new data frame for side-by-side comparison
+comparison_data <- data.frame(
+  ScoreType = rep(c("3 Month", "Baseline"), each = nrow(BellsPalsyData)),
+  Score = c(BellsPalsyData$X3.Month.Score.on.House.Brackmann.scale,
+            BellsPalsyData$Baseline.Score.on.House.Brackmann.scale)
+)
+
+# Plotting side-by-side bar graph
+ggplot(comparison_data, aes(x = ScoreType, y = Score, fill = ScoreType)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Comparison of Scores After 3 Months",
+       x = "Time Point",
+       y = "Score on House-Brackmann Scale") +
+  scale_fill_manual(values = c("purple", "red")) +
+  theme_classic()
+
+
+# Creating a new data frame for side-by-side comparison
+comparison_data2 <- data.frame(
+  ScoreType = rep(c("9 Month", "Baseline"), each = nrow(BellsPalsyData)),
+  Score = c(BellsPalsyData$X9.Month.Score.on.House.Brackmann.scale,
+            BellsPalsyData$Baseline.Score.on.House.Brackmann.scale)
+)
+
+# Plotting side-by-side bar graph
+ggplot(comparison_data2, aes(x = ScoreType, y = Score, fill = ScoreType)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Comparison of Scores After 9 Months",
+       x = "Time Point",
+       y = "Score on House-Brackmann Scale") +
+  scale_fill_manual(values = c("blue", "green")) + 
+  theme_classic()
+```
+
+
+```{r}
+
+# Getting summary statistics by treatment group 
+initial_summ_stats_by_treatment_group<-as.data.frame(
+  BellsPalsyData|>
+    group_by(Treatment.Group)|>
+     summarise(mean_bs= mean(Baseline.Score.on.House.Brackmann.scale),
+              median_bs= median(Baseline.Score.on.House.Brackmann.scale),
+              mode_bs= Mode(Baseline.Score.on.House.Brackmann.scale),
+              min_bs= min(Baseline.Score.on.House.Brackmann.scale),
+              max_bs= max(Baseline.Score.on.House.Brackmann.scale),
+              sd_bs= sd(Baseline.Score.on.House.Brackmann.scale) ))
+initial_summ_stats_by_treatment_group
+
+nine_summ_stats_by_treatment_group<-as.data.frame(
+  BellsPalsyData|>
+    group_by(Treatment.Group)|>
+     summarise(mean_9s= mean(X9.Month.Score.on.House.Brackmann.scale),
+              median_9s= median(X9.Month.Score.on.House.Brackmann.scale),
+              mode_9s= Mode(X9.Month.Score.on.House.Brackmann.scale),
+              min_9s= min(X9.Month.Score.on.House.Brackmann.scale),
+              max_9s= max(X9.Month.Score.on.House.Brackmann.scale),
+              sd_9s= sd(X9.Month.Score.on.House.Brackmann.scale) ))
+nine_summ_stats_by_treatment_group
+
+# Looking at the difference in means across treatment groups from the initial score to the 9 month score 
+nine_summ_stats_by_treatment_group$mean_9s-initial_summ_stats_by_treatment_group$mean_bs
+
+```
+
+```{r}
+
+# Seeing if there is a correlation between baseline scores and 3 month, and 9 month scores by treatment group and age group
+BellsPalsyData|>
+  group_by(Treatment.Group, agegroup)|>
+  summarise(cor(Baseline.Score.on.House.Brackmann.scale, X3.Month.Score.on.House.Brackmann.scale),
+            cor(Baseline.Score.on.House.Brackmann.scale, X9.Month.Score.on.House.Brackmann.scale),)
+
+# Seeing if there is a correlation between baseline scores and 3 month, and 9 month scores by treatment group and sex
+BellsPalsyData|>
+  group_by(Treatment.Group, Sex)|>
+  summarise(cor(Baseline.Score.on.House.Brackmann.scale, X3.Month.Score.on.House.Brackmann.scale),
+            cor(Baseline.Score.on.House.Brackmann.scale, X9.Month.Score.on.House.Brackmann.scale),)
+
+```
+
+```{r}
+
+# Visualizing correlation between baseline and 9-month House Brackmann scores
+ggplot(data = BellsPalsyData, aes(x = Baseline.Score.on.House.Brackmann.scale, y = X9.Month.Score.on.House.Brackmann.scale)) + 
+  geom_jitter() + 
+  labs(title = "Baseline and Nine Month Scores",
+       x= "Baseline Score",
+       y= "Nine Month Score")+
+  theme_classic()
+```
+
+```{r}
+
+# Only looking at placebo as that is my target population
+placebo_group<-BellsPalsyData[BellsPalsyData$Treatment.Group== "Placebo–Placebo", ]
+
+# Grouping by the variable "Sex" and fitting linear models
+model1 <- placebo_group |>
+  group_by(Sex) |>
+  do(model_summary = summary(lm(X9.Month.Score.on.House.Brackmann.scale ~ Baseline.Score.on.House.Brackmann.scale, data = .)))
+
+# Printing summaries
+print(model1$model_summary)
+
+# Fitting linear models for each group
+model1 <- placebo_group |>
+  group_by(Sex) |>
+  do(model = lm(X9.Month.Score.on.House.Brackmann.scale ~ Baseline.Score.on.House.Brackmann.scale, data = .))
+
+# Extracting  coefficients for each model
+coefficients_df <- model1 |>
+  summarise(intercept = coef(model)[1], slope = coef(model)[2])
+
+# Fit linear models for each group
+model1 <- placebo_group |>
+  group_by(Sex) |>
+  do(model = lm(X9.Month.Score.on.House.Brackmann.scale ~ Baseline.Score.on.House.Brackmann.scale, data = .))
+
+# Creating a jitter plot with line of best fit
+ggplot(placebo_group, aes(x = Baseline.Score.on.House.Brackmann.scale, y = X9.Month.Score.on.House.Brackmann.scale, color = Sex)) +
+  geom_jitter(position = position_jitter(width = 0.1), alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(x = "Baseline Score on House-Brackmann scale", y = "9 Month Score on House-Brackmann scale", color = "Sex") +
+  theme_classic()
+
+# Extracting residuals for each group
+residuals_df <- model1 |>
+  summarise(residuals = resid(model))
+
+# Creatig a QQ plot of residuals
+qqnorm(residuals_df$residuals)
+qqline(residuals_df$residuals)
+
+# Creating a histogram of the residuals
+hist(residuals_df$residuals, breaks = 10, main = "Histogram of Residuals", xlab = "Residuals", col = "lightblue")
+title(main = "Histogram of Residuals", col.main = "blue")
+title(xlab = "Residuals", col.lab = "blue")
+title(ylab = "Frequency", col.lab = "blue")
+
+
+```
+
+```{r}
+
+# Grouping by the variable age group to fit the linear models
+model2 <- placebo_group |>
+  group_by(agegroup) |>
+  do(model_summary = summary(lm(X9.Month.Score.on.House.Brackmann.scale ~ Baseline.Score.on.House.Brackmann.scale, data = .)))
+
+# Printing summaries
+print(model2$model_summary)
+
+# Fitting the linear models for each group
+model2 <- placebo_group |>
+  group_by(agegroup) |>
+  do(model = lm(X9.Month.Score.on.House.Brackmann.scale ~ Baseline.Score.on.House.Brackmann.scale, data = .))
+
+# Creating a Jitter plot with line of best fit
+ggplot(placebo_group, aes(x = Baseline.Score.on.House.Brackmann.scale, y = X9.Month.Score.on.House.Brackmann.scale, color = agegroup)) +
+  geom_jitter(position = position_jitter(width = 0.1), alpha = 0.5) +
+  geom_smooth(method = "lm", aes(group = agegroup), se = FALSE, data = placebo_group) +
+  labs(x = "Baseline Score on House-Brackmann scale", y = "X9 Month Score on House-Brackmann scale", color = "Age Group") +
+  theme_classic()
+
+# Fitting the linear models for each group
+model2 <- placebo_group |>
+  group_by(agegroup) |>
+  do(model = lm(X9.Month.Score.on.House.Brackmann.scale ~ Baseline.Score.on.House.Brackmann.scale, data = .))
+
+# Extracting residuals for each group
+residuals_df <- model2 |>
+  summarise(residuals = resid(model))
+
+# Creating a QQ plot of residuals
+qqnorm(residuals_df$residuals)
+qqline(residuals_df$residuals)
+
+# Creating a histogram of the residuals with intervals of 0.5
+hist(residuals_df$residuals, breaks = seq(min(residuals_df$residuals), max(residuals_df$residuals) + 0.5, by = 0.5), 
+     main = "Histogram of Residuals", xlab = "Residuals", col = "lightgreen")
+title(main = "Histogram of Residuals", col.main = "green")
+title(xlab = "Residuals", col.lab = "green")
+title(ylab = "Frequency", col.lab = "green")
+
+```
+
+```{r}
+
+# Checking for outliers in baseline and 9-month scores
+outlier_detection <- BellsPalsyData %>%
+  select(Baseline.Score.on.House.Brackmann.scale, X9.Month.Score.on.House.Brackmann.scale) %>%
+  gather(key = "time_point", value = "score", Baseline.Score.on.House.Brackmann.scale, X9.Month.Score.on.House.Brackmann.scale) %>%
+  ggplot(aes(x = score)) +
+  geom_boxplot() +
+  facet_wrap(~time_point, scales = "free") +
+  labs(x = "Score", y = "Frequency", title = "Outlier Detection") +
+  theme_classic()
+
+outlier_detection
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
