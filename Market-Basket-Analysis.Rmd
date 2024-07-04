@@ -1,0 +1,90 @@
+---
+title: "Market Basket Analysis"
+author: "Ursula Podosenin"
+date: "2024-07-03"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Imagine 10000 receipts sitting on your table. Each receipt represents a transaction with items that were purchased. The receipt is a representation of stuff that went into a customer’s basket – and therefore ‘Market Basket Analysis’.
+
+That is exactly what the Groceries Data Set contains: a collection of receipts with each line representing 1 receipt and the items purchased. Each line is called a transaction and each column in a row represents an item.
+
+The data set (comma separated file) is attached to this post.
+
+You assignment is to use R to mine the data for association rules.  Provide information on  all relevant statistics like support, confidence, lift and others.Also, Provide your top 10 rules by lift with the associated metrics. 
+
+```{r}
+
+# Downloading the packages that will be used in this project
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+install.packages("arules", repos = "http://cran.us.r-project.org")
+library("arules")
+install.packages("arulesViz", repos = "http://cran.us.r-project.org")
+library("arulesViz")
+```
+
+```{r}
+# Getting my working directory
+getwd()
+
+# Loading the file in my work space
+data<-"/Users/ursulapodosenin/Desktop/GroceryDataSet.csv"
+data <- read.transactions(data, sep = ",", format = "basket")
+```
+
+
+```{r}
+# Getting an overview of the data
+nrow(data)
+ncol(data)
+summary(data)
+```
+
+
+```{r}
+# Calculating the average basket size
+basket_sizes <- size(data)
+average_basket_size <- mean(basket_sizes)
+cat("Average Basket Size:", average_basket_size, "\n")
+```
+
+
+```{r}
+# Looking at the distinct number of unique values in the data set
+n_items<- unique(unlist(data))
+distinct_items<-length(n_items)
+number_of_baskets<-nrow(data)
+```
+
+
+```{r}
+# Plotting the top 10 most frequently purchased items
+itemFrequencyPlot(data, topN = 10, type = "absolute", col = "purple", main = "Top 10 Most Frequently Purchased Items")
+```
+
+
+```{r}
+# Creating the association rules
+rules <- apriori(data, parameter = list(supp = 0.001, conf = 0.8))
+summary(rules)
+
+# Sorting the top 10 rules and saving the rules into a data frame
+top_rules <- sort(rules, by = "lift")[1:10]
+inspect(top_rules)
+top_rules_df <- as(top_rules, "data.frame")
+print(top_rules_df)
+```
+
+```{r}
+# Plotting a graph of the top 10 rules
+plot(top_rules, method = "graph", control = list(type = "items"))
+```
+
